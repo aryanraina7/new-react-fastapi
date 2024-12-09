@@ -41,7 +41,6 @@ jobs:
       with:
         host: ${{ secrets.VM_IP }}  # VM IP address from GitHub Secrets
         username: ${{ secrets.VM_USER }}  # VM user from GitHub Secrets
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}  # Passphrase from GitHub Secrets
         password: ${{ secrets.VM_PASSWORD }}  # Optional: VM password
         
         script: |
