@@ -25,16 +25,16 @@ jobs:
     # Step 3: Build and push backend image
     - name: Build and push backend Docker image
       run: |
-        cd application-my/backend
-        docker build -t qhinhprd.azurecr.io/backend:latest .
-        docker push qhinhprd.azurecr.io/backend:latest
+        cd application-my/fastapi-backend
+        docker build -t qhinhprd.azurecr.io/fastapi-backend:latest .
+        docker push qhinhprd.azurecr.io/fastapi-backend:latest
 
     # Step 4: Build and push frontend image
     - name: Build and push frontend Docker image
       run: |
-        cd application-my/frontend
-        docker build -t qhinhprd.azurecr.io/frontend:latest .
-        docker push qhinhprd.azurecr.io/frontend:latest
+        cd application-my/react-frontend
+        docker build -t qhinhprd.azurecr.io/react-frontend:latest .
+        docker push qhinhprd.azurecr.io/react-frontend:latest
 
     # Step 5: Deploy to VM
     - name: Deploy to Azure VM
@@ -51,9 +51,9 @@ jobs:
           az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
           
           # Pull and run backend Docker container
-          docker pull qhinhprd.azurecr.io/backend:latest
-          docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/backend:latest
+          docker pull qhinhprd.azurecr.io/fastapi-backend:latest
+          docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/fastapi-backend:latest
           
           # Pull and run frontend Docker container
-          docker pull qhinhprd.azurecr.io/frontend:latest
-          docker run -d --name frontend -p 3000:3000 qhinhprd.azurecr.io/frontend:latest
+          docker pull qhinhprd.azurecr.io/react-frontend:latest
+          docker run -d --name frontend -p 3000:3000 qhinhprd.azurecr.io/react-frontend:latest
