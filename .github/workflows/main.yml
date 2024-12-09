@@ -1,0 +1,35 @@
+name: Deploy to VM and ACR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Log in to Azure Container Registry (update login-server, username, and password)
+    - name: Log in to Azure Container Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: your-acr-name.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+
+    # Step 3: Build and push backend Docker image
+    - name: Build and push backend image
+      run: |
+        docker build -t your-acr-name.azurecr.io/backend:latest ./application-my/fastapi-backend
+        docker push your-acr-name.azurecr.io/backend:latest
+
+    # Step 4: Build and push frontend Docker image
+    - name: Build and push frontend image
+      run: |
+        docker build -t your-acr-name.azurecr.io/frontend:latest ./application-my/react-frontend
+        docker push your-acr-name.azurecr.io/frontend:latest
