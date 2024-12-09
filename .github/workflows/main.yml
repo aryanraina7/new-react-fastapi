@@ -3,33 +3,57 @@ name: Deploy to VM and ACR
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the action on pushes to the main branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the Ubuntu runner
 
     steps:
-    # Step 1: Checkout the repository
+    # Step 1: Checkout code
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3  # Check out the repository code
 
-    # Step 2: Log in to Azure Container Registry (update login-server, username, and password)
+    # Step 2: Log in to Azure Container Registry
     - name: Log in to Azure Container Registry
       uses: azure/docker-login@v1
       with:
-        login-server: your-acr-name.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }}
-        password: ${{ secrets.ACR_PASSWORD }}
+        login-server: qhinhprd.azurecr.io  # Your ACR login server
+        username: ${{ secrets.ACR_USERNAME }}  # Username from GitHub Secrets
+        password: ${{ secrets.ACR_PASSWORD }}  # Password from GitHub Secrets
 
-    # Step 3: Build and push backend Docker image
-    - name: Build and push backend image
+    # Step 3: Build and push backend image
+    - name: Build and push backend Docker image
       run: |
-        docker build -t your-acr-name.azurecr.io/backend:latest ./application-my/fastapi-backend
-        docker push your-acr-name.azurecr.io/backend:latest
+        cd application-my/backend
+        docker build -t qhinhprd.azurecr.io/backend:latest .
+        docker push qhinhprd.azurecr.io/backend:latest
 
-    # Step 4: Build and push frontend Docker image
-    - name: Build and push frontend image
+    # Step 4: Build and push frontend image
+    - name: Build and push frontend Docker image
       run: |
-        docker build -t your-acr-name.azurecr.io/frontend:latest ./application-my/react-frontend
-        docker push your-acr-name.azurecr.io/frontend:latest
+        cd application-my/frontend
+        docker build -t qhinhprd.azurecr.io/frontend:latest .
+        docker push qhinhprd.azurecr.io/frontend:latest
+
+    # Step 5: Deploy to VM
+    - name: Deploy to Azure VM
+      uses: appleboy/ssh-action@v0.1.6  # Use appleboy SSH action
+      with:
+        host: ${{ secrets.VM_IP }}  # VM IP address from GitHub Secrets
+        username: ${{ secrets.VM_USER }}  # VM user from GitHub Secrets
+        key: ${{ secrets.SSH_PRIVATE_KEY }}  # Private SSH key from GitHub Secrets
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}  # Passphrase from GitHub Secrets
+        password: ${{ secrets.VM_PASSWORD }}  # Optional: VM password
+        port: 22  # Default SSH port
+        script: |
+          # Log in to Azure Container Registry on the VM
+          az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
+          
+          # Pull and run backend Docker container
+          docker pull qhinhprd.azurecr.io/backend:latest
+          docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/backend:latest
+          
+          # Pull and run frontend Docker container
+          docker pull qhinhprd.azurecr.io/frontend:latest
+          docker run -d --name frontend -p 3000:3000 qhinhprd.azurecr.io/frontend:latest
