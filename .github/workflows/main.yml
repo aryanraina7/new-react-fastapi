@@ -22,21 +22,14 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}  # Username from GitHub Secrets
         password: ${{ secrets.ACR_PASSWORD }}  # Use the correct secret for ACR password
 
-    # Step 3: Build and push backend image
-    #- name: Build and push backend Docker image
-      #run: |
-        #cd application-my/fastapi-backend
-        #docker build -t qhinhprd.azurecr.io/fastapi-backend:latest .
-        #docker push qhinhprd.azurecr.io/fastapi-backend:latest
-
-    # Step 4: Build and push frontend image
+    # Step 3: Build and push frontend Docker image
     - name: Build and push frontend Docker image
       run: |
-        cd application-my/react-frontend
-        docker build -t qhinhprd.azurecr.io/react-frontend:latest .
+        # Update the path to reflect the correct location of the Dockerfile
+        docker build -t qhinhprd.azurecr.io/react-frontend:latest ./  # Building from the root folder
         docker push qhinhprd.azurecr.io/react-frontend:latest
 
-    # Step 5: Deploy to VM
+    # Step 4: Deploy to Azure VM
     - name: Deploy to Azure VM
       uses: appleboy/ssh-action@v0.1.6  # Use the SSH action to connect to the VM
       with:
@@ -47,10 +40,6 @@ jobs:
         script: |
           # Log in to Azure Container Registry on the VM
           az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
-          
-          # Pull and run backend Docker container
-          # docker pull qhinhprd.azurecr.io/fastapi-backend:latest
-          # docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/fastapi-backend:latest
           
           # Pull and run frontend Docker container
           docker pull qhinhprd.azurecr.io/react-frontend:latest
