@@ -23,11 +23,11 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}  # Use the correct secret for ACR password
 
     # Step 3: Build and push backend image
-    - name: Build and push backend Docker image
-      run: |
-        cd application-my/fastapi-backend
-        docker build -t qhinhprd.azurecr.io/fastapi-backend:latest .
-        docker push qhinhprd.azurecr.io/fastapi-backend:latest
+    #- name: Build and push backend Docker image
+      #run: |
+        #cd application-my/fastapi-backend
+        #docker build -t qhinhprd.azurecr.io/fastapi-backend:latest .
+        #docker push qhinhprd.azurecr.io/fastapi-backend:latest
 
     # Step 4: Build and push frontend image
     - name: Build and push frontend Docker image
@@ -49,8 +49,8 @@ jobs:
           az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
           
           # Pull and run backend Docker container
-          docker pull qhinhprd.azurecr.io/fastapi-backend:latest
-          docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/fastapi-backend:latest
+          # docker pull qhinhprd.azurecr.io/fastapi-backend:latest
+          # docker run -d --name backend -p 8000:8000 qhinhprd.azurecr.io/fastapi-backend:latest
           
           # Pull and run frontend Docker container
           docker pull qhinhprd.azurecr.io/react-frontend:latest
