@@ -20,7 +20,7 @@ jobs:
       with:
         login-server: qhinhprd.azurecr.io  # Your ACR login server
         username: ${{ secrets.ACR_USERNAME }}  # Username from GitHub Secrets
-        password: ${{ secrets.ACR_PASSWORD }}  # Password from GitHub Secrets
+        password: ${{ secrets.ACR_PASSPHRASE }}  # Password from GitHub Secrets
 
     # Step 3: Build and push backend image
     - name: Build and push backend Docker image
@@ -40,12 +40,12 @@ jobs:
     - name: Deploy to Azure VM
       with:
         host: ${{ secrets.VM_IP }}  # VM IP address from GitHub Secrets
-        username: ${{ secrets.VM_USER }}  # VM user from GitHub Secrets
-        password: ${{ secrets.VM_PASSWORD }}  # Optional: VM password
+        username: ${{ secrets.VM_USERNAME }}  # VM user from GitHub Secrets
+        password: ${{ secrets.VM_PASSPHRASE }}  # Optional: VM password
         
         script: |
           # Log in to Azure Container Registry on the VM
-          az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
+          az acr login --name qhinhprd --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSPHRASE }}
           
           # Pull and run backend Docker container
           docker pull qhinhprd.azurecr.io/fastapi-backend:latest
